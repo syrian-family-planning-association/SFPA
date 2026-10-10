@@ -70,6 +70,7 @@ header > * { position: relative; z-index: 1; }
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
+    z-index: 5; /* فوق العنوان حتى يكون الزر كله قابلًا للنقر */
     background: rgba(255, 255, 255, 0.15);
     color: white;
     text-decoration: none;
@@ -531,7 +532,7 @@ footer {
 @media (max-width: 600px) {
     header h1 { font-size: 24px; }
     .back-btn {
-        position: static;
+        position: relative;
         display: inline-block;
         margin-bottom: 12px;
         transform: none;
