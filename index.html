@@ -38,46 +38,67 @@ body {
     flex-direction: column;
 }
 
-/* الشريط الأبيض العلوي (تم وضع الشعار أقصى اليسار والجملة على اليمين) */
+/* شريط علوي متجاوب: الشعار يساراً والجملة على اليمين */
 .top-bar {
     position: relative;
     width: 100%;
+    min-height: 78px;
     background: #ffffff;
-    padding: 6px 20px;
+    padding: 8px clamp(16px, 4vw, 48px);
     display: flex;
-    justify-content: space-between; /* توزيع العناصر على الأطراف */
+    justify-content: space-between;
     align-items: center;
-    flex-direction: row-reverse; /* يجعل الشعار في اليسار والجملة في اليمين */
+    flex-direction: row;
+    direction: ltr;
+    gap: 16px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     z-index: 10;
     border-bottom: 3px solid var(--orange);
 }
 
+.logo-container { flex: 0 0 auto; }
 .logo-container img {
-    width: 85px;
+    width: clamp(58px, 7vw, 76px);
     height: auto;
     display: block;
+    object-fit: contain;
 }
 
-/* تنسيق الجملة المنسابة المباشرة باللون الأبيض */
+/* جملة نصية بسيطة بلا خلفية أو إطار */
 .slogan-text {
-    color: #ffffff;
+    position: relative;
+    display: inline-block;
+    color: var(--purple);
     font-family: 'Cairo', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    background: var(--purple);
-    padding: 4px 12px;
-    border-radius: 6px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    font-size: clamp(13px, 1.6vw, 17px);
+    font-weight: 800;
+    letter-spacing: 0.35px;
+    direction: ltr;
+    text-align: left;
+    white-space: nowrap;
+    background: transparent;
+    padding: 0 0 5px;
+    border: 0;
+    border-radius: 0;
+    text-shadow: none;
+}
+.slogan-text::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 38px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--orange);
 }
 
 /* الخلفية الرئيسية */
 .hero {
     position: relative;
     flex: 1;
-    min-height: calc(100vh - 55px);
+    min-height: calc(100vh - 78px);
+    min-height: calc(100dvh - 78px);
     background: 
         linear-gradient(
             to bottom,
@@ -239,14 +260,22 @@ footer {
 
 /* الشاشات الصغيرة */
 @media (max-width: 768px) {
-    .top-bar { padding: 4px 12px; }
-    .logo-container img { width: 65px; }
-    .slogan-text { font-size: 11px; padding: 3px 8px; }
-    .hero h1 { font-size: 32px; }
-    .hero p { font-size: 17px; }
+    .top-bar { min-height: 60px; padding: 6px 14px; gap: 10px; }
+    .logo-container img { width: clamp(48px, 15vw, 60px); }
+    .slogan-text { font-size: clamp(11px, 3.2vw, 14px); letter-spacing: 0.15px; padding-bottom: 4px; }
+    .slogan-text::after { width: 28px; height: 2px; }
+    .hero { min-height: calc(100vh - 60px); min-height: calc(100dvh - 60px); padding: 22px 16px; }
+    .hero h1 { font-size: clamp(27px, 7vw, 36px); }
+    .hero p { font-size: clamp(15px, 4vw, 18px); }
     .cards { gap: 15px; }
     .floating-contact { bottom: 20px; right: 15px; }
     .float-btn { width: 48px; height: 48px; font-size: 20px; }
+}
+
+@media (max-width: 360px) {
+    .top-bar { padding-left: 10px; padding-right: 10px; gap: 8px; }
+    .logo-container img { width: 46px; }
+    .slogan-text { font-size: 10px; letter-spacing: 0; }
 }
 
 </style>
@@ -299,5 +328,5 @@ footer {
 
 </section>
 
-<!-- أزرار التواصل العائمة -->
-<div class="
+</body>
+</html>
