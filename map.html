@@ -36,9 +36,15 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    animation: fadeIn 0.8s ease-in-out;
 }
 
-/* شريط التنصيب العلوي أو الهيدر البسيط */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* الشريط العلوي */
 .header {
     background: var(--purple);
     color: white;
@@ -51,7 +57,7 @@ body {
 }
 
 .header h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
 }
 
@@ -72,15 +78,93 @@ body {
     background: #e04515;
 }
 
+/* حاوية الصفحة والجانبية */
+.main-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+    height: calc(100vh - 70px);
+}
+
+/* قائمة جانبية لعرض المراكز مع حركات */
+.sidebar {
+    width: 320px;
+    background: rgba(17, 0, 44, 0.95);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 5;
+    color: white;
+}
+
+.sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: var(--orange);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    padding-bottom: 8px;
+}
+
+.center-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+
+.center-item:hover {
+    background: rgba(246, 81, 29, 0.2);
+    border-color: var(--orange);
+    transform: translateX(-5px);
+}
+
+.center-item h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.center-item p {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
 /* حاوية الخريطة */
 #map {
     flex: 1;
-    width: 100%;
-    min-height: calc(100vh - 75px);
+    height: 100%;
     z-index: 1;
 }
 
-/* تخصيص نصوص ومظهر النافذة المنسدلة في الخريطة Popup */
+/* تأثير نبض الدبابيس (Pulse Effect) */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(246, 81, 29, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 15px rgba(246, 81, 29, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(246, 81, 29, 0);
+    }
+}
+
+.custom-pulse-marker {
+    background: var(--orange);
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* تخصيص النافذة المنبثقة Popup */
 .leaflet-popup-content-wrapper {
     font-family: 'Cairo', sans-serif;
     border-radius: 16px;
@@ -103,15 +187,15 @@ body {
     margin: 0;
 }
 
-/* الفوتر البسيط */
-footer {
-    background: var(--purple);
-    color: rgba(255, 255, 255, 0.85);
-    text-align: center;
-    padding: 10px 20px;
-    font-size: 13px;
-    letter-spacing: 1px;
-    z-index: 10;
+/* استجابة الشاشات الصغيرة */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column-reverse;
+    }
+    .sidebar {
+        width: 100%;
+        max-height: 180px;
+    }
 }
 </style>
 </head>
@@ -123,42 +207,74 @@ footer {
         <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الرئيسية</a>
     </div>
 
-    <!-- عنصر الخريطة -->
-    <div id="map"></div>
+    <div class="main-container">
+        <!-- قائمة المراكز الجانبية التفاعلية -->
+        <div class="sidebar">
+            <h2>مراكز الفروع الطبية</h2>
+            <div id="centers-list"></div>
+        </div>
 
-    <footer>
-        SFPA © 2026 Ali issa
-    </footer>
+        <!-- عنصر الخريطة -->
+        <div id="map"></div>
+    </div>
 
     <!-- استدعاء مكتبة Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // إعداد الخريطة وتمركزها المبدئي على سورية (إحداثيات مركزية مع مستوى التقريب)
+        // إعداد الخريطة وتمركزها على سورية
         const map = L.map('map').setView([35.151347, 39.056396], 7);
 
-        // إضافة طبقة الخريطة من OpenStreetMap
+        // إضافة طبقة خريطة نظيفة
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // قائمة المراكز الطبية (يمكنك إضافة أو تعديل الإحداثيات والأسماء هنا بسهولة تامة)
+        // قائمة المراكز الطبية وإحداثياتها
         const centers = [
-            { name: "الإدارة العامة - دمشق", lat: 33.5138, lng: 36.2765, desc: "دمشق - أبو رمانة - جانب نقابة الأطباء" },
-            { name: "مركز دمشق (المجتهد / الصناعة)", lat: 33.5024, lng: 36.3088, desc: "عيادات ونقاط طبية ثابتة" },
-            { name: "فرع حلب", lat: 36.2021, lng: 37.1343, desc: "عيادات وفرق طبية" },
-            { name: "فرع حمص", lat: 34.7324, lng: 36.7137, desc: "الخالدية - الوعر ونقاط طبية" },
-            { name: "فرع حماة", lat: 35.1314, lng: 36.7578, desc: "مركز شباب حماة والعيادات المرتبطة" },
-            { name: "فرع اللاذقية", lat: 35.5316, lng: 35.7915, desc: "مركز الرمل الشمالي وعيادة جبلة" },
-            { name: "فرع درعا", lat: 32.6180, lng: 36.1058, desc: "خدمات صحية وإنجابية" },
-            { name: "فرع دير الزور", lat: 35.3359, lng: 40.1448, desc: "عيادة الميادين والنقاط الطبية" }
+            { id: 1, name: "الإدارة العامة - دمشق", lat: 33.5138, lng: 36.2765, desc: "دمشق - أبو رمانة - جانب نقابة الأطباء" },
+            { id: 2, name: "مركز دمشق (المجتهد / الصناعة)", lat: 33.5024, lng: 36.3088, desc: "عيادات ونقاط طبية ثابتة" },
+            { id: 3, name: "فرع حلب", lat: 36.2021, lng: 37.1343, desc: "عيادات وفرق طبية" },
+            { id: 4, name: "فرع حمص", lat: 34.7324, lng: 36.7137, desc: "الخالدية - الوعر ونقاط طبية" },
+            { id: 5, name: "فرع حماة", lat: 35.1314, lng: 36.7578, desc: "مركز شباب حماة والعيادات المرتبطة" },
+            { id: 6, name: "فرع اللاذقية", lat: 35.5316, lng: 35.7915, desc: "مركز الرمل الشمالي وعيادة جبلة" },
+            { id: 7, name: "فرع درعا", lat: 32.6180, lng: 36.1058, desc: "خدمات صحية وإنجابية" },
+            { id: 8, name: "فرع دير الزور", lat: 35.3359, lng: 40.1448, desc: "عيادة الميادين والنقاط الطبية" }
         ];
 
-        // إضافة العلامات (Markers) إلى الخريطة لكل مركز
+        const markers = {};
+        const listContainer = document.getElementById('centers-list');
+
+        // تصميم أيقونة النبض المخصصة
+        const pulseIcon = L.divIcon({
+            className: 'custom-pulse-marker',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+
+        // إضافة المراكز إلى الخريطة والقائمة الجانبية
         centers.forEach(center => {
-            const marker = L.marker([center.lat, center.lng]).addTo(map);
+            // إنشاء الدبوس على الخريطة
+            const marker = L.marker([center.lat, center.lng], { icon: pulseIcon }).addTo(map);
             marker.bindPopup(`<h3>${center.name}</h3><p>${center.desc}</p>`);
+            markers[center.id] = marker;
+
+            // بناء القائمة الجانبية التفاعلية
+            const item = document.createElement('div');
+            item.className = 'center-item';
+            item.innerHTML = `<h4>${center.name}</h4><p>${center.desc}</p>`;
+            
+            // حركة الطيران عند النقر على المركز في القائمة
+            item.addEventListener('click', () => {
+                map.flyTo([center.lat, center.lng], 13, {
+                    animate: true,
+                    duration: 1.5 // سرعة وسلاسة حركة الكاميرا
+                });
+                marker.openPopup();
+            });
+
+            listContainer.appendChild(item);
         });
     </script>
 
