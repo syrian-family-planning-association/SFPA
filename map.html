@@ -36,6 +36,7 @@ body {
     font-family: 'Cairo', sans-serif;
     background: #11002c;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -74,6 +75,8 @@ body {
     flex-direction: row;
     width: 100%;
     height: calc(100vh - 60px);
+    height: calc(100dvh - 60px);
+    min-height: 0;
     position: relative;
 }
 
@@ -175,7 +178,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* القائمة */
-.centers-list-container { flex: 1; overflow-y: auto; padding-left: 5px; }
+.centers-list-container { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding-left: 5px; }
 .centers-list-container::-webkit-scrollbar { width: 6px; }
 .centers-list-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 6px; }
 
@@ -353,18 +356,49 @@ body {
 }
 .reset-btn:hover { background: #f4f4f4; color: var(--orange); }
 
-/* الشاشات الصغيرة */
+/* تخطيط الشاشات الصغيرة: الخريطة بالأعلى والقائمة أسفلها مع تمرير مستقل */
 @media (max-width: 768px) {
-    .main-container { flex-direction: column-reverse; }
-    .sidebar { width: 100%; height: 300px; }
-    .map-wrap { height: calc(100vh - 360px); flex: none; }
-    .stats-bar { gap: 4px; top: 8px; }
-    .stat { min-width: 60px; padding: 4px 8px; }
-    .stat b { font-size: 15px; }
-    .stat span { font-size: 9px; }
-    .tour-btn { bottom: 40px; font-size: 12px; padding: 8px 16px; }
-    .toast { bottom: 90px; font-size: 15px; }
-    .header h1 { font-size: 14px; }
+    .header { height: 54px; padding: 6px 10px; gap: 8px; }
+    .header h1 { font-size: 12px; line-height: 1.45; max-width: calc(100% - 82px); text-align: right; }
+    .back-btn { padding: 5px 9px; border-radius: 8px; font-size: 11px; white-space: nowrap; }
+    .main-container { flex-direction: column-reverse; height: calc(100vh - 54px); height: calc(100dvh - 54px); min-height: 0; }
+    .sidebar { width: 100%; height: min(48vh, 380px); height: min(48dvh, 380px); min-height: 220px; max-height: 52dvh; padding: 8px 11px; overflow: hidden; flex: 0 0 auto; border-left: 0; border-top: 1px solid rgba(255,255,255,.16); }
+    .sidebar h2, .search-box, .filter-container, .chips, .toolbar { flex: 0 0 auto; }
+    .sidebar h2 { font-size: 13px; margin-bottom: 6px; padding-bottom: 4px; }
+    .search-box { margin-bottom: 6px; }
+    .search-input { padding-top: 7px; padding-bottom: 7px; font-size: 12px; }
+    .filter-container { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .filter-container label { margin: 0; white-space: nowrap; font-size: 11px; }
+    .filter-select { flex: 1; min-width: 0; padding: 6px 8px; font-size: 12px; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 5px; margin-bottom: 6px; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: pan-x; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: 0 0 auto; font-size: 10px; padding: 4px 8px; }
+    .toolbar { margin-bottom: 5px; }
+    .count-label { font-size: 11px; }
+    .count-label b { font-size: 13px; }
+    .locate-btn { padding: 5px 8px; font-size: 10px; }
+    .centers-list-container { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 0 2px; }
+    .center-item { padding: 8px 10px; margin-bottom: 6px; }
+    .center-item h4 { font-size: 12px; }
+    .center-item p { font-size: 10px; line-height: 1.5; }
+    .map-wrap { width: 100%; height: auto; min-height: 0; flex: 1 1 auto; }
+    #map { min-height: 0; }
+    .stats-bar { top: 8px; left: auto; right: 8px; transform: none; width: 148px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+    .stat { min-width: 0; padding: 4px 5px; border-radius: 8px; }
+    .stat b { font-size: 14px; }
+    .stat span { font-size: 8px; white-space: nowrap; }
+    .tour-btn { bottom: 12px; font-size: 10px; padding: 7px 13px; }
+    .toast { bottom: 52px; max-width: calc(100% - 24px); padding: 7px 12px; font-size: 12px; white-space: nowrap; }
+    .legend { padding: 5px 8px; font-size: 9px; line-height: 1.65; }
+    .leaflet-control-zoom a, .reset-btn { width: 30px !important; height: 30px !important; line-height: 30px !important; font-size: 13px !important; }
+    .leaflet-control-layers-toggle { width: 30px !important; height: 30px !important; background-size: 18px 18px; }
+    .cluster-icon { font-size: 12px; }
+}
+@media (max-width: 380px) {
+    .header h1 { font-size: 11px; }
+    .stats-bar { width: 136px; }
+    .stat span { font-size: 7px; }
+    .sidebar { padding-right: 8px; padding-left: 8px; }
 }
 </style>
 </head>
@@ -554,7 +588,8 @@ body {
             spiderfyOnMaxZoom: true,
             iconCreateFunction: function (cl) {
                 const n = cl.getChildCount();
-                const size = n < 5 ? 38 : 46;
+                const compact = window.matchMedia('(max-width: 768px)').matches;
+                const size = compact ? (n < 5 ? 32 : 38) : (n < 5 ? 38 : 46);
                 return L.divIcon({
                     html: '<div class="cluster-icon" style="width:' + size + 'px;height:' + size + 'px">' + n + '</div>',
                     className: 'pin-wrap',
@@ -842,6 +877,7 @@ body {
         render(false);
         map.fitBounds(centers.map(c => [c.lat, c.lng]), { padding: [40, 40] });
         window.addEventListener('load', () => map.invalidateSize());
+        window.addEventListener('resize', () => map.invalidateSize({ pan: false }));
     </script>
 
 </body>
