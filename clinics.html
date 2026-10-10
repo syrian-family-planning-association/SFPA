@@ -15,272 +15,68 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-
-:root {
-    --purple: #25005c;
-    --orange: #f6511d;
-    --text-dark: #222222;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Cairo', sans-serif;
-    background: #f8f9fa;
-    color: var(--text-dark);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* الهيدر والعنوان */
-header {
-    background: linear-gradient(135deg, var(--purple), #3b008f);
-    color: white;
-    padding: 30px 20px;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.back-btn {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 12px;
-    font-weight: 600;
-    transition: 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-header h1 {
-    font-size: 32px;
-    margin-bottom: 5px;
-}
-
-header p {
-    font-size: 16px;
-    opacity: 0.9;
-}
-
-/* المحتوى الرئيسي */
-main {
-    flex: 1;
-    max-width: 1000px;
-    width: 100%;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-.step-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 15px;
-    color: var(--purple);
-    border-right: 4px solid var(--orange);
-    padding-right: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.step-num {
-    background: var(--purple);
-    color: white;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-}
-
-/* شبكة اختيار نوع المركز بالأيقونات */
-.type-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 30px;
-}
-
-.type-btn {
-    background: white;
-    border: 2px solid #e2e8f0;
-    padding: 16px 12px;
-    border-radius: 16px;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-dark);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.type-btn i {
-    font-size: 26px;
-    color: var(--purple);
-    transition: color 0.25s ease;
-}
-
-.type-btn:hover {
-    border-color: var(--orange);
-    color: var(--orange);
-    transform: translateY(-2px);
-}
-
-.type-btn:hover i {
-    color: var(--orange);
-}
-
-.type-btn.active {
-    background: var(--purple);
-    color: white;
-    border-color: var(--purple);
-    box-shadow: 0 6px 15px rgba(37, 0, 92, 0.25);
-}
-
-.type-btn.active i {
-    color: white;
-}
-
-/* شبكة المحافظات */
-.gov-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.gov-btn {
-    background: white;
-    border: 2px solid #e2e8f0;
-    padding: 12px 10px;
-    border-radius: 14px;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-dark);
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.gov-btn:hover {
-    border-color: var(--orange);
-    color: var(--orange);
-}
-
-.gov-btn.active {
-    background: var(--orange);
-    color: white;
-    border-color: var(--orange);
-    box-shadow: 0 4px 12px rgba(246, 81, 29, 0.3);
-}
-
-/* حاوية عرض المراكز والعيادات */
-.results-container {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
-    min-height: 180px;
-}
-
-.center-card {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 18px 0;
-}
-
-.center-card:last-child {
-    border-bottom: none;
-}
-
-.center-info h3 {
-    font-size: 18px;
-    color: var(--purple);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.center-info h3 i {
-    color: var(--orange);
-}
-
-.center-info p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-.center-info p i {
-    margin-top: 4px;
-    color: var(--purple);
-}
-
-.placeholder-text {
-    text-align: center;
-    color: #888;
-    padding: 40px 0;
-    font-size: 15px;
-}
-
-/* الفوتر */
-footer {
-    background: var(--purple);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    font-size: 14px;
-    margin-top: auto;
-}
-
-@media (max-width: 600px) {
-    .back-btn {
-        position: static;
-        display: inline-block;
-        margin-bottom: 10px;
-        transform: none;
-    }
-}
-
+:root{--purple:#32106d;--purple2:#5726a8;--orange:#f36a3d;--ink:#201a2c;--muted:#756e80;--bg:#f7f5fb;--line:#ece7f3;--white:#fff;--shadow:0 16px 42px rgba(49,16,109,.09)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:radial-gradient(ellipse at 12% 5%,rgba(243,106,61,.08),transparent 30%),var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+header{position:relative;overflow:hidden;background:linear-gradient(125deg,#281052 0%,#48208d 60%,#6433ab 100%);color:#fff;padding:48px 22px 82px;text-align:center}
+header:before,header:after{content:'';position:absolute;border:1px solid rgba(255,255,255,.1);border-radius:50%;pointer-events:none}
+header:before{width:360px;height:360px;top:-230px;right:8%}header:after{width:270px;height:270px;bottom:-205px;left:10%}
+.header-inner{max-width:1050px;margin:auto;position:relative;z-index:1}
+.back-btn{position:absolute;right:0;top:0;display:inline-flex;align-items:center;gap:9px;padding:10px 17px;border:1px solid rgba(255,255,255,.25);border-radius:13px;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-weight:700;transition:.2s}
+.back-btn:hover{background:rgba(255,255,255,.23);transform:translateY(-2px)}
+.brand-mark{width:62px;height:62px;margin:3px auto 13px;display:grid;place-items:center;border-radius:21px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:27px}
+header h1{font-size:clamp(27px,4vw,40px);font-weight:800;line-height:1.35;margin-bottom:8px}
+header p{font-size:16px;color:rgba(255,255,255,.8)}
+main{width:min(1040px,calc(100% - 32px));margin:-42px auto 42px;position:relative;z-index:2;flex:1}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--white);border:1px solid rgba(236,231,243,.9);border-radius:19px;padding:17px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.stat-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:#f2ebff;color:var(--purple2);font-size:20px;flex:0 0 auto}
+.stat-card:nth-child(2) .stat-icon{background:#fff0e9;color:var(--orange)}
+.stat-number{font-size:25px;font-weight:800;color:var(--purple);line-height:1.1}.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:25px;margin-bottom:20px;box-shadow:0 8px 26px rgba(30,16,54,.045)}
+.step-title{display:flex;align-items:center;gap:11px;color:var(--purple);font-size:19px;font-weight:800;margin-bottom:16px}
+.step-num{width:31px;height:31px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--purple2));color:white;font-size:14px;box-shadow:0 5px 12px rgba(69,30,136,.2)}
+.type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.type-btn{min-height:90px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 12px;font:700 14px 'Cairo',sans-serif;color:#40384b;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:right;transition:.22s}
+.type-btn i{width:43px;height:43px;flex:0 0 auto;display:grid;place-items:center;border-radius:14px;background:#f5f0fc;color:var(--purple2);font-size:19px;transition:.22s}
+.type-btn:hover{border-color:#c7afea;transform:translateY(-2px);box-shadow:0 8px 18px rgba(49,16,109,.08)}
+.type-btn.active{background:#f7f2ff;border-color:var(--purple2);box-shadow:inset 0 0 0 1px var(--purple2),0 8px 20px rgba(49,16,109,.08);color:var(--purple)}
+.type-btn.active i{background:var(--purple2);color:#fff}
+.gov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px}
+.gov-btn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px;font:600 14px 'Cairo',sans-serif;color:#484151;cursor:pointer;transition:.2s}
+.gov-btn:hover{border-color:#e8a087;color:#d84b23;background:#fffaf8}.gov-btn.active{background:var(--orange);border-color:var(--orange);color:white;box-shadow:0 5px 13px rgba(243,106,61,.22)}
+.results-container{background:linear-gradient(180deg,#fff,#fdfcff);border:1px solid var(--line);border-radius:18px;padding:19px;min-height:135px}
+.results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line);color:var(--purple);font-weight:800}
+.results-count{background:#f2ebff;color:var(--purple2);padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.center-card{position:relative;background:#fff;border:1px solid #f0ebf5;border-radius:15px;padding:17px 18px;margin:10px 0;transition:.2s}
+.center-card:hover{border-color:#d9c9ef;box-shadow:0 8px 18px rgba(49,16,109,.06);transform:translateY(-1px)}
+.center-info h3{font-size:16px;color:var(--purple);margin-bottom:7px;display:flex;align-items:center;gap:9px}.center-info h3 i{color:var(--orange)}
+.center-info p{font-size:13px;color:#625b6d;margin:5px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.8}.center-info p i{margin-top:5px;color:var(--purple2)}
+.placeholder-text{text-align:center;color:#898293;padding:30px 12px;font-size:14px;line-height:1.8}.placeholder-text i{display:block;margin:0 auto 9px;color:#a993cb;font-size:25px}
+footer{margin-top:auto;background:#241044;color:rgba(255,255,255,.8);text-align:center;padding:16px;font-size:13px}
+@media(max-width:700px){header{padding:72px 18px 73px}.back-btn{right:50%;transform:translateX(50%);white-space:nowrap}.back-btn:hover{transform:translate(50%,-2px)}.stats{gap:9px}.stat-card{padding:13px 10px;gap:8px;flex-direction:column;text-align:center}.stat-icon{width:39px;height:39px;font-size:17px;border-radius:12px}.stat-number{font-size:21px}.stat-label{font-size:11px}.type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:19px 15px}.step-title{font-size:17px}}
+@media(max-width:390px){.type-btn{font-size:12px;gap:8px;padding:12px 9px}.type-btn i{width:37px;height:37px;font-size:16px}.gov-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 
 <body>
 
 <header>
+  <div class="header-inner">
     <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الرئيسية</a>
+    <div class="brand-mark"><i class="fa-solid fa-heart-pulse"></i></div>
     <h1>المراكز والعيادات الطبية</h1>
-    <p>اختر نوع المركز ثم المحافظة لعرض المراكز المتاحة</p>
+    <p>دليل المراكز والعيادات والمنشآت — اختر النوع والمحافظة للتعرّف على التفاصيل</p>
+  </div>
 </header>
 
 <main>
+  <section class="stats" aria-label="إحصاءات المراكز والمنشآت">
+    <article class="stat-card"><div class="stat-icon"><i class="fa-solid fa-hospital"></i></div><div><div class="stat-number" id="totalCount">61</div><div class="stat-label">منشأة أو عيادة أو فريق مُدرج</div></div></article>
+    <article class="stat-card"><div class="stat-icon"><i class="fa-solid fa-map-location-dot"></i></div><div><div class="stat-number" id="govCount">13</div><div class="stat-label">محافظة مشمولة</div></div></article>
+  </section>
 
+  <section class="panel">
     <!-- الخطوة 1: اختيار نوع المركز -->
     <div class="step-title"><span class="step-num">1</span> اختر نوع المركز</div>
     <div class="type-grid">
@@ -309,19 +105,23 @@ footer {
             <span>عيادة متنقلة</span>
         </button>
     </div>
+  </section>
 
+  <section class="panel">
     <!-- الخطوة 2: اختيار المحافظة -->
     <div class="step-title"><span class="step-num">2</span> اختر المحافظة</div>
     <div class="gov-grid" id="govContainer">
         <div class="placeholder-text" style="padding:10px; grid-column: 1/-1;">الرجاء اختيار نوع المركز أولاً</div>
     </div>
+  </section>
 
+  <section class="panel">
     <!-- الخطوة 3: نتائج المراكز -->
     <div class="step-title"><span class="step-num">3</span> المراكز المتاحة</div>
     <div class="results-container" id="resultsContainer">
-        <div class="placeholder-text">الرجاء حدد نوع المركز والمحافظة لعرض التفاصيل.</div>
+        <div class="placeholder-text"><i class="fa-regular fa-hand-pointer"></i>اختَر نوع المركز والمحافظة لعرض النتائج والعناوين.</div>
     </div>
-
+  </section>
 </main>
 
 <footer>
@@ -422,6 +222,9 @@ const db = [
     { type: "عيادة متنقلة", gov: "الحسكة", name: "فريق العيادات المتنقلة (فريق 1)", isMobile: true }
 ];
 
+document.getElementById('totalCount').textContent = db.length;
+document.getElementById('govCount').textContent = new Set(db.map(item => item.gov)).size;
+
 let currentType = '';
 let currentGov = '';
 
@@ -435,11 +238,11 @@ function selectType(type, btnElement) {
     const govContainer = document.getElementById('govContainer');
     const resultsContainer = document.getElementById('resultsContainer');
 
-    resultsContainer.innerHTML = `<div class="placeholder-text">الرجاء اختيار المحافظة لعرض المراكز المتاحة.</div>`;
+    resultsContainer.innerHTML = `<div class="placeholder-text"><i class="fa-regular fa-hand-pointer"></i>اختَر المحافظة لعرض المراكز المتاحة.</div>`;
 
     let availableGovs = [];
     if (type === "عيادة متنقلة") {
-        availableGovs = allGovs;
+        availableGovs = [...new Set(db.filter(item => item.type === type).map(item => item.gov))];
     } else {
         availableGovs = [...new Set(db.filter(item => item.type === type).map(item => item.gov))];
     }
@@ -494,11 +297,11 @@ function selectGov(gov, btnElement) {
     const filteredCenters = db.filter(item => item.type === currentType && item.gov === gov);
 
     if (filteredCenters.length === 0) {
-        resultsContainer.innerHTML = `<div class="placeholder-text">لا توجد نتائج مطابقة.</div>`;
+        resultsContainer.innerHTML = `<div class="placeholder-text"><i class="fa-solid fa-circle-info"></i>ما لقينا نتائج مطابقة لهالاختيار.</div>`;
         return;
     }
 
-    let html = '';
+    let html = `<div class="results-heading"><span><i class="fa-solid fa-list-check"></i> النتائج في ${gov}</span><span class="results-count">${filteredCenters.length} ${filteredCenters.length === 1 ? 'مركز' : 'مراكز'}</span></div>`;
     filteredCenters.forEach(center => {
         html += `
             <div class="center-card">
