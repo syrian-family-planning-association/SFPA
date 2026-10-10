@@ -39,12 +39,6 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 /* الشريط العلوي */
@@ -98,12 +92,12 @@ body {
     backdrop-filter: blur(10px);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px;
-    overflow-y: auto;
     z-index: 5;
     color: white;
     height: 100%;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
 .sidebar h2 {
@@ -196,11 +190,11 @@ body {
     color: #dddddd;
 }
 
-/* حاوية الخريطة */
+/* حاوية الخريطة الأساسية */
 #map {
-    flex: 1;
-    width: 100%;
+    flex-grow: 1;
     height: 100%;
+    background-color: #1a0b36;
     z-index: 1;
 }
 
@@ -286,7 +280,6 @@ body {
         <div class="sidebar">
             <h2>مراكز الفروع الطبية</h2>
             
-            <!-- قائمة منسدلة لاختيار المحافظة -->
             <div class="filter-container">
                 <label for="gov-select">اختر المحافظة:</label>
                 <select id="gov-select" class="filter-select">
@@ -317,13 +310,20 @@ body {
 
     <script>
         // إعداد الخريطة وتمركزها على سورية
-        const map = L.map('map').setView([35.151347, 39.056396], 7);
+        const map = L.map('map', {
+            zoomControl: true
+        }).setView([35.151347, 39.056396], 7);
 
         // إضافة طبقة خريطة نظيفة
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
+        // إصلاح مشكلة عدم ظهور الخريطة بالضغط التلقائي على تحديث المساحة
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
 
         // قائمة كافة المراكز والعيادات
         const centers = [
@@ -392,7 +392,7 @@ body {
             iconAnchor: [8, 8]
         });
 
-        // دالة لعرض وتصفية المراكز حسب المحافظة المختار
+        // دالة لعرض وتصفية المراكز حسب المحافظة المختارة
         function displayCenters(selectedGov) {
             listContainer.innerHTML = '';
             markersLayer.clearLayers();
@@ -444,7 +444,7 @@ body {
             displayCenters(e.target.value);
         });
 
-        // العرض الأولي عند فتح الصفحة (عرض الكل)
+        // العرض الأولي عند فتح الصفحة
         displayCenters('all');
     </script>
 
