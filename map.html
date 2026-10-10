@@ -57,6 +57,7 @@ body {
     align-items: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     z-index: 10;
+    height: 70px;
 }
 
 .header h1 {
@@ -86,12 +87,13 @@ body {
     display: flex;
     flex: 1;
     position: relative;
+    width: 100%;
     height: calc(100vh - 70px);
 }
 
-/* قائمة جانبية لعرض المراكز مع حركات */
+/* قائمة جانبية لعرض المراكز مع فلترة المحافظات */
 .sidebar {
-    width: 350px;
+    width: 360px;
     background: rgba(17, 0, 44, 0.95);
     backdrop-filter: blur(10px);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -99,14 +101,59 @@ body {
     overflow-y: auto;
     z-index: 5;
     color: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar h2 {
     font-size: 18px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     color: var(--orange);
     border-bottom: 2px solid rgba(255,255,255,0.1);
     padding-bottom: 8px;
+}
+
+/* تصميم القائمة المنسدلة للفلترة */
+.filter-container {
+    margin-bottom: 15px;
+}
+
+.filter-container label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: #ddd;
+    font-weight: 600;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select option {
+    background: #25005c;
+    color: white;
+}
+
+.filter-select:hover, .filter-select:focus {
+    border-color: var(--orange);
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.centers-list-container {
+    flex: 1;
+    overflow-y: auto;
 }
 
 .center-item {
@@ -140,16 +187,19 @@ body {
     font-size: 14px;
     font-weight: 700;
     margin-bottom: 3px;
+    color: #ffffff;
 }
 
 .center-item p {
     font-size: 11px;
-    opacity: 0.8;
+    opacity: 0.85;
+    color: #dddddd;
 }
 
 /* حاوية الخريطة */
 #map {
     flex: 1;
+    width: 100%;
     height: 100%;
     z-index: 1;
 }
@@ -215,7 +265,10 @@ body {
     }
     .sidebar {
         width: 100%;
-        max-height: 200px;
+        height: 280px;
+    }
+    #map {
+        height: calc(100vh - 350px);
     }
 }
 </style>
@@ -229,10 +282,30 @@ body {
     </div>
 
     <div class="main-container">
-        <!-- قائمة المراكز الجانبية التفاعلية -->
+        <!-- قائمة المراكز الجانبية مع فلترة المحافظات -->
         <div class="sidebar">
-            <h2>قائمة المراكز والعيادات</h2>
-            <div id="centers-list"></div>
+            <h2>مراكز الفروع الطبية</h2>
+            
+            <!-- قائمة منسدلة لاختيار المحافظة -->
+            <div class="filter-container">
+                <label for="gov-select">اختر المحافظة:</label>
+                <select id="gov-select" class="filter-select">
+                    <option value="all">🌐 كافة المحافظات (عرض الكل)</option>
+                    <option value="دمشق">دمشق</option>
+                    <option value="ريف دمشق">ريف دمشق</option>
+                    <option value="حلب">حلب</option>
+                    <option value="حمص">حمص</option>
+                    <option value="حماة">حماة</option>
+                    <option value="اللاذقية">اللاذقية</option>
+                    <option value="طرطوس">طرطوس</option>
+                    <option value="درعا">درعا</option>
+                    <option value="السويداء">السويداء</option>
+                    <option value="القنيطرة">القنيطرة</option>
+                    <option value="دير الزور">دير الزور</option>
+                </select>
+            </div>
+
+            <div class="centers-list-container" id="centers-list"></div>
         </div>
 
         <!-- عنصر الخريطة -->
@@ -252,15 +325,13 @@ body {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // قائمة كافة المراكز والعيادات مع تصحيح الإحداثيات البرمجية
+        // قائمة كافة المراكز والعيادات
         const centers = [
-            // دمشق
             { gov: "دمشق", name: "عيادة نسائية - الحلَبوني", lat: 33.30393, lng: 36.17379, desc: "الحلبوني - جادة ابن سينا - جانب دار ابن كثير - بناء الفرخ ط1" },
             { gov: "دمشق", name: "مركز صحة القدم", lat: 33.472085, lng: 36.287085, desc: "لقدم جانب بلدية القدم -بالقرب من مخفر الشرطه .. شارع مكتب السفريات" },
             { gov: "دمشق", name: "مركز دعم وتمكين المرأة - مساكن برزة", lat: 33.30127, lng: 36.18341, desc: "مساكن برزة- دوار الطاهي- مكتبة السلام" },
             { gov: "دمشق", name: "عيادة نسائية - حفير تحتا", lat: 33.649793, lng: 36.437831, desc: "حفير التحتا جنب جامع الفاروق" },
             
-            // ريف دمشق
             { gov: "ريف دمشق", name: "عيادة نسائية - جرمانا", lat: 33.484317, lng: 36.343546, desc: "عيادة جرمانا امتداد البلدية القديمة خلف الملعب البلدي دخله صيدلية أميرة كركوش" },
             { gov: "ريف دمشق", name: "عيادة نسائية - يبرود", lat: 33.970692, lng: 36.658000, desc: "بيرود شارع الماركات بناء عساف بالقرب من مركز الحولات الهرم" },
             { gov: "ريف دمشق", name: "عيادة نسائية - دوما", lat: 33.569619, lng: 36.409019, desc: "قبو جامع ابراهيم الخليل" },
@@ -271,14 +342,12 @@ body {
             { gov: "ريف دمشق", name: "مركز دعم وتمكين المرأة - اشرفية صحنايا", lat: 33.424555, lng: 36.222021, desc: "صحنايا البلد - اخر السرافيس - مقابل ماركت القصار" },
             { gov: "ريف دمشق", name: "مركز دعم وتمكين المرأة - يبرود", lat: 33.935250, lng: 36.665440, desc: "اول الكورنيش الشمالي - نزلة جامع الحسين" },
 
-            // حلب
             { gov: "حلب", name: "عيادة نسائية - الزبدية", lat: 37.080320, lng: 36.111510, desc: "الزبدية نزلة فرن الزبدية جانب مستوصف الصحة" },
             { gov: "حلب", name: "مركز تل حديا", lat: 36.563060, lng: 35.594150, desc: "ل حديا شارع المستوصف (البريد) -مفرق الصهريج" },
             { gov: "حلب", name: "مركز الشيخ سعيد", lat: 37.091730, lng: 36.095620, desc: "شارع الشيخ سعيد الرئيسي -جانب مخدة مياه الشيخ سعيد مباشرة امام مطعم طيبة" },
             { gov: "حلب", name: "مركز الجبول", lat: 37.301200, lng: 36.050800, desc: "مفرق السفيرة -شارع الروابي" },
             { gov: "حلب", name: "مركز دعم وتمكين المرأة - حلب الرازي", lat: 36.206846, lng: 37.136878, desc: "ريف حلب الجنوبي - الطريق الواصل الى ناحية تل الضمان - قرية بلاس جانب المخبز الآلي سابقا" },
 
-            // حمص
             { gov: "حمص", name: "عيادة نسائية- الخالدية", lat: 34.443000, lng: 36.430300, desc: "الخالدية شارع الشوادر" },
             { gov: "حمص", name: "عيادة نسائية- الوعر", lat: 34.441400, lng: 36.395800, desc: "الوعر قرب القصر العدلي طلعة راكان" },
             { gov: "حمص", name: "عيادة نسائية - تدمر", lat: 34.332200, lng: 38.163300, desc: "تدمر الحي الأوسط" },
@@ -287,40 +356,34 @@ body {
             { gov: "حمص", name: "المستودع", lat: 34.442200, lng: 36.425600, desc: "الخالدية شارع ابن النديم/" },
             { gov: "حمص", name: "مركز دعم وتمكين المرأة - الوعر", lat: 34.743551, lng: 36.718541, desc: "حمص، الخالدية، خلف مدرسة زنوبيا، دخلة شارع ابن الخطيب، جانب منشرة حاكمي ." },
 
-            // حماة
             { gov: "حماة", name: "عيادة نسائية - الضاهرية", lat: 35.162189, lng: 36.726521, desc: "الضاهرية الحي الغربي جانب المقبرة القديمة" },
             { gov: "حماة", name: "عيادة نسائية - الجلمة", lat: 35.191600, lng: 36.291200, desc: "الجلمة - مقابل مدرسة الجلمة الجنوبية" },
             { gov: "حماة", name: "مركز دعم وتمكين المرأة- حماة", lat: 35.135940, lng: 36.762326, desc: "الشرقية - الحاضر - عند جامع المهنا" },
 
-            // اللاذقية
             { gov: "اللاذقية", name: "عيادة نسائية- جبلة", lat: 35.363081, lng: 35.928326, desc: "اللاذقية،جبلة،جنوب الملعب،جانب صيدلية فاتن عبدالله" },
             { gov: "اللاذقية", name: "عيادة نسائية- الرمل الشمالي", lat: 35.533779, lng: 35.780463, desc: "الرمل الشمالي - حي الجمهورية رقم 1- جادة الولاء - المنطقة الخامسة" },
             { gov: "اللاذقية", name: "مركز دعم وتمكين المرأة - اللاذقية", lat: 35.532978, lng: 35.779390, desc: "الرمل الشمالي - مقابل روضة براعم البعث - بعد المخفر" },
 
-            // طرطوس
             { gov: "طرطوس", name: "عيادة نسائية - دوير الشيخ سعد", lat: 34.919121, lng: 35.920575, desc: "فوق روضة الصبا" },
             { gov: "طرطوس", name: "مركز دعم وتمكين المرأة- طرطوس", lat: 34.921483, lng: 35.922345, desc: "شمال سيراميك زنوبيا مقابل الفرن" },
 
-            // درعا
             { gov: "درعا", name: "عيادة نسائية - الكاشف", lat: 32.632833, lng: 36.109727, desc: "درعا حي الكاشف - العيادات الشاملة" },
             { gov: "درعا", name: "مركز دعم وتمكين المرأة - درعا", lat: 32.627977, lng: 36.106835, desc: "حي السبيل - شمال مدرسة الاموية" },
 
-            // السويداء
             { gov: "السويداء", name: "عيادة نسائية- القصور", lat: 32.702561, lng: 36.577824, desc: "طريق المشفى المشفى الوطني بمركز المدينة" },
             { gov: "السويداء", name: "عيادة نسائية - الأمل", lat: 32.712086, lng: 36.569440, desc: "غرب ساحة تشرين مقابل شركة سيرياتيل" },
             { gov: "السويداء", name: "مركز دعم وتمكين المرأة - السويداء", lat: 32.712300, lng: 36.569293, desc: "مركز مساحة آمنة للمرأة - السويداء" },
 
-            // القنيطرة
             { gov: "القنيطرة", name: "عيادة نسائية - خان أرنبة", lat: 33.179961, lng: 35.893282, desc: "عيادة خان ارنبة شارع مدينة السلام مقابل مقبرة خان ارنبة مركز الخان الصحي" },
 
-            // دير الزور
             { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" },
             { gov: "دير الزور", name: "عيادة نسائية - الميادين", lat: 35.019259, lng: 40.453805, desc: "دير الزور - الميادين - الشارع مقابل المحكمة - جنب جامع الروضة" },
             { gov: "دير الزور", name: "مركز دعم وتمكين المرأة - دير الزور", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" }
         ];
 
-        const markers = {};
+        let markersLayer = L.layerGroup().addTo(map);
         const listContainer = document.getElementById('centers-list');
+        const govSelect = document.getElementById('gov-select');
 
         // تصميم أيقونة النبض المخصصة
         const pulseIcon = L.divIcon({
@@ -329,30 +392,60 @@ body {
             iconAnchor: [8, 8]
         });
 
-        // إضافة المراكز إلى الخريطة والقائمة الجانبية
-        centers.forEach((center, index) => {
-            if (!isNaN(center.lat) && !isNaN(center.lng)) {
-                const marker = L.marker([center.lat, center.lng], { icon: pulseIcon }).addTo(map);
-                marker.bindPopup(`<div class="popup-gov">${center.gov}</div><h3>${center.name}</h3><p>${center.desc}</p>`);
-                markers[index] = marker;
+        // دالة لعرض وتصفية المراكز حسب المحافظة المختار
+        function displayCenters(selectedGov) {
+            listContainer.innerHTML = '';
+            markersLayer.clearLayers();
 
-                // بناء القائمة الجانبية التفاعلية
-                const item = document.createElement('div');
-                item.className = 'center-item';
-                item.innerHTML = `<span class="badge">${center.gov}</span><h4>${center.name}</h4><p>${center.desc}</p>`;
-                
-                // حركة الطيران عند النقر على المركز في القائمة
-                item.addEventListener('click', () => {
-                    map.flyTo([center.lat, center.lng], 13, {
-                        animate: true,
-                        duration: 1.5
-                    });
-                    marker.openPopup();
-                });
-
-                listContainer.appendChild(item);
+            let filteredCenters = centers;
+            if (selectedGov !== 'all') {
+                filteredCenters = centers.filter(c => c.gov === selectedGov);
             }
+
+            let bounds = [];
+
+            filteredCenters.forEach((center) => {
+                if (!isNaN(center.lat) && !isNaN(center.lng)) {
+                    const marker = L.marker([center.lat, center.lng], { icon: pulseIcon });
+                    marker.bindPopup(`<div class="popup-gov">${center.gov}</div><h3>${center.name}</h3><p>${center.desc}</p>`);
+                    markersLayer.addLayer(marker);
+
+                    bounds.push([center.lat, center.lng]);
+
+                    // بناء العنصر في القائمة الجانبية
+                    const item = document.createElement('div');
+                    item.className = 'center-item';
+                    item.innerHTML = `<span class="badge">${center.gov}</span><h4>${center.name}</h4><p>${center.desc}</p>`;
+                    
+                    item.addEventListener('click', () => {
+                        map.flyTo([center.lat, center.lng], 13, {
+                            animate: true,
+                            duration: 1.5
+                        });
+                        marker.openPopup();
+                    });
+
+                    listContainer.appendChild(item);
+                }
+            });
+
+            // تحريك الكاميرا لتشمل المراكز الظاهرة فقط
+            if (bounds.length > 0) {
+                if (selectedGov === 'all') {
+                    map.setView([35.151347, 39.056396], 7);
+                } else {
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+                }
+            }
+        }
+
+        // الاستماع لتغيير القائمة المنسدلة
+        govSelect.addEventListener('change', (e) => {
+            displayCenters(e.target.value);
         });
+
+        // العرض الأولي عند فتح الصفحة (عرض الكل)
+        displayCenters('all');
     </script>
 
 </body>
