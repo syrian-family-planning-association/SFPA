@@ -215,7 +215,55 @@ body {
 }
 
 /* الخريطة */
-#map { flex: 1; height: 100%; width: 100%; min-height: 300px; z-index: 1; }
+.map-wrap { flex: 1; position: relative; height: 100%; min-width: 0; }
+#map { width: 100%; height: 100%; min-height: 300px; z-index: 1; }
+
+/* بطاقات الإحصائيات فوق الخريطة */
+.stats-bar {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 900; display: flex; gap: 8px; pointer-events: none;
+}
+.stat {
+    background: rgba(17,0,44,0.88); color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 3px solid var(--orange);
+    border-radius: 10px; padding: 6px 14px; min-width: 84px;
+    text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-family: 'Cairo', sans-serif;
+    animation: slideDown .6s ease both;
+}
+.stat:nth-child(2) { animation-delay: .1s; border-bottom-color: var(--orange); }
+.stat:nth-child(3) { animation-delay: .2s; border-bottom-color: var(--support); }
+.stat:nth-child(4) { animation-delay: .3s; border-bottom-color: var(--other); }
+.stat b { display: block; font-size: 20px; font-weight: 800; line-height: 1.2; }
+.stat span { font-size: 10px; opacity: .85; font-weight: 600; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* زر الجولة التلقائية */
+.tour-btn {
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+    z-index: 900; font-family: 'Cairo', sans-serif;
+    font-size: 13px; font-weight: 800; color: #fff;
+    background: var(--orange); border: none; border-radius: 30px;
+    padding: 10px 22px; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(246,81,29,0.5);
+    transition: background .25s, transform .25s;
+}
+.tour-btn:hover { background: #e04515; transform: translateX(-50%) scale(1.06); }
+.tour-btn.running { background: var(--purple); box-shadow: 0 6px 18px rgba(37,0,92,0.6); }
+
+/* رسالة الجولة */
+.toast {
+    position: absolute; bottom: 85px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 900; background: rgba(17,0,44,0.92); color: #fff;
+    font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 800;
+    padding: 10px 28px; border-radius: 14px;
+    border: 2px solid var(--orange);
+    opacity: 0; pointer-events: none;
+    transition: opacity .4s, transform .4s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* الدبابيس: الحركة على عنصر داخلي حتى لا نكسر تموضع Leaflet */
 .pin-wrap { background: none; border: none; }
@@ -309,7 +357,13 @@ body {
 @media (max-width: 768px) {
     .main-container { flex-direction: column-reverse; }
     .sidebar { width: 100%; height: 300px; }
-    #map { height: calc(100vh - 360px); }
+    .map-wrap { height: calc(100vh - 360px); flex: none; }
+    .stats-bar { gap: 4px; top: 8px; }
+    .stat { min-width: 60px; padding: 4px 8px; }
+    .stat b { font-size: 15px; }
+    .stat span { font-size: 9px; }
+    .tour-btn { bottom: 40px; font-size: 12px; padding: 8px 16px; }
+    .toast { bottom: 90px; font-size: 15px; }
     .header h1 { font-size: 14px; }
 }
 </style>
@@ -365,7 +419,19 @@ body {
             <div class="centers-list-container" id="centers-list"></div>
         </div>
 
-        <div id="map"></div>
+        <div class="map-wrap">
+            <div id="map"></div>
+
+            <div class="stats-bar">
+                <div class="stat"><b id="st-total">0</b><span>إجمالي المراكز</span></div>
+                <div class="stat"><b id="st-clinic">0</b><span>عيادات</span></div>
+                <div class="stat"><b id="st-support">0</b><span>مراكز دعم المرأة</span></div>
+                <div class="stat"><b id="st-gov">0</b><span>محافظات</span></div>
+            </div>
+
+            <div class="toast" id="toast"></div>
+            <button class="tour-btn" id="tour-btn"><i class="fa-solid fa-play"></i> جولة تلقائية</button>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -444,8 +510,10 @@ body {
 
             { gov: "القنيطرة", name: "عيادة نسائية - خان أرنبة", lat: 33.179961, lng: 35.893282, desc: "عيادة خان ارنبة شارع مدينة السلام مقابل مقبرة خان ارنبة مركز الخان الصحي" },
 
-            { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" }
-            // ⬅️ أضف هنا بقية المراكز (ضع فاصلة بعد السطر السابق ثم المركز الجديد)
+            { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" },
+            { gov: "دير الزور", name: "عيادة نسائية - الميادين", lat: 35.019259, lng: 40.453805, desc: "دير الزور - الميادين - الشارع مقابل المحكمة - جنب جامع الروضة" },
+            { gov: "دير الزور", name: "مركز دعم وتمكين المرأة - دير الزور", lat: 35.33783016, lng: 40.13214137, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - بجانب مدرسة الاعداد الحزبي" }
+            // ⬅️ لإضافة مركز جديد: ضع فاصلة بعد السطر السابق ثم المركز الجديد هنا
         ];
 
         // ===== أدوات مساعدة =====
@@ -576,6 +644,7 @@ body {
             Object.keys(listItems).forEach(k => delete listItems[k]);
 
             document.getElementById('count').textContent = list.length;
+            updateStats(list);
 
             if (!list.length) {
                 listEl.innerHTML = '<div class="empty-msg"><i class="fa-regular fa-face-frown"></i><br>لا توجد نتائج مطابقة</div>';
@@ -697,6 +766,77 @@ body {
             return d;
         };
         legend.addTo(map);
+
+        // ===== بطاقات الإحصائيات (عدّ متحرك) =====
+        function animateNumber(el, to) {
+            const from = Number(el.textContent) || 0;
+            if (from === to) return;
+            const start = performance.now(), dur = 700;
+            function step(now) {
+                const t = Math.min((now - start) / dur, 1);
+                el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - t, 3)));
+                if (t < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function updateStats(list) {
+            animateNumber(document.getElementById('st-total'), list.length);
+            animateNumber(document.getElementById('st-clinic'), list.filter(c => c.type === 'clinic').length);
+            animateNumber(document.getElementById('st-support'), list.filter(c => c.type === 'support').length);
+            animateNumber(document.getElementById('st-gov'), new Set(list.map(c => c.gov)).size);
+        }
+
+        // ===== الجولة التلقائية بين المحافظات =====
+        const tourBtn = document.getElementById('tour-btn');
+        const toast = document.getElementById('toast');
+        let tourOn = false, tourTimer = null, tourIdx = 0;
+
+        function resetFilters() {
+            state.type = 'all'; state.q = '';
+            searchInput.value = ''; clearBtn.style.display = 'none';
+            document.querySelectorAll('#type-chips .chip').forEach(b => b.classList.toggle('active', b.dataset.type === 'all'));
+        }
+
+        function tourStep() {
+            const govs = Array.from(new Set(centers.map(c => c.gov)));
+            if (tourIdx >= govs.length) { stopTour(true); return; }
+            const g = govs[tourIdx++];
+            const n = centers.filter(c => c.gov === g).length;
+            state.gov = g;
+            document.getElementById('gov-select').value = g;
+            render(true);
+            toast.textContent = g + ' — ' + n + (n === 1 ? ' مركز' : ' مراكز');
+            toast.classList.add('show');
+            tourTimer = setTimeout(tourStep, 4500);
+        }
+
+        function startTour() {
+            tourOn = true; tourIdx = 0;
+            resetFilters();
+            tourBtn.classList.add('running');
+            tourBtn.innerHTML = '<i class="fa-solid fa-stop"></i> إيقاف الجولة';
+            map.closePopup();
+            tourStep();
+        }
+
+        function stopTour(resetView) {
+            clearTimeout(tourTimer);
+            tourOn = false;
+            tourBtn.classList.remove('running');
+            tourBtn.innerHTML = '<i class="fa-solid fa-play"></i> جولة تلقائية';
+            toast.classList.remove('show');
+            if (resetView) {
+                state.gov = 'all';
+                document.getElementById('gov-select').value = 'all';
+                render(true);
+            }
+        }
+
+        tourBtn.addEventListener('click', () => { tourOn ? stopTour(false) : startTour(); });
+        // أي تدخل من المستخدم يوقف الجولة
+        map.getContainer().addEventListener('pointerdown', () => { if (tourOn) stopTour(false); });
+        document.getElementById('gov-select').addEventListener('change', () => { if (tourOn) stopTour(false); });
 
         // ===== البداية =====
         render(false);
