@@ -38,16 +38,15 @@ body {
     flex-direction: column;
 }
 
-/* الشريط الأبيض العلوي للشعار (تمت محاذاة الشعار للجهة اليسرى) */
+/* الشريط الأبيض العلوي للشعار والجملة */
 .top-bar {
     position: relative;
     width: 100%;
     background: #ffffff;
-    padding: 4px 20px;
+    padding: 6px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-direction: row-reverse; /* يضمن وضع الشعار في أقصى اليسار في صفحة RTL */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     z-index: 10;
     border-bottom: 3px solid var(--orange);
@@ -57,6 +56,20 @@ body {
     width: 85px;
     height: auto;
     display: block;
+}
+
+/* تنسيق جملة Leave no one behind باللون الأبيض */
+.slogan-badge {
+    background: var(--purple);
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(37, 0, 92, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* الخلفية الرئيسية */
@@ -229,7 +242,8 @@ footer {
 /* الشاشات الصغيرة */
 @media (max-width: 768px) {
     .top-bar { padding: 4px 12px; }
-    .logo-container img { width: 70px; }
+    .logo-container img { width: 65px; }
+    .slogan-badge { font-size: 11px; padding: 4px 10px; }
     .hero h1 { font-size: 32px; }
     .hero p { font-size: 17px; }
     .cards { gap: 15px; }
@@ -242,10 +256,13 @@ footer {
 
 <body>
 
-<!-- الشريط الأبيض العلوي للشعار -->
+<!-- الشريط الأبيض العلوي للشعار والجملة -->
 <div class="top-bar">
     <div class="logo-container">
         <img src="final%20logo.jpg" alt="شعار جمعية تنظيم الأسرة السورية">
+    </div>
+    <div class="slogan-badge">
+        Leave no one behind
     </div>
 </div>
 
@@ -269,12 +286,12 @@ footer {
             <div class="card-title">الخدمات</div>
         </a>
 
-    <a href="map.html" class="card">
-    <div class="icon-box">
-        <i class="fa-solid fa-map-location-dot"></i>
-    </div>
-    <div class="card-title">الخريطة التفاعلية</div>
-</a>
+        <a href="map.html" class="card">
+            <div class="icon-box">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div class="card-title">الخريطة التفاعلية</div>
+        </a>
 
         <a href="tel:0900000000" class="card" title="اتصل برقم الشكاوى">
             <div class="icon-box">
