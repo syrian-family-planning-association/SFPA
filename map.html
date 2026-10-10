@@ -36,7 +36,8 @@
 body {
     font-family: 'Cairo', sans-serif;
     background: #11002c;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
@@ -45,28 +46,29 @@ body {
 .header {
     background: var(--purple);
     color: white;
-    padding: 15px 25px;
+    padding: 10px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     z-index: 10;
-    height: 70px;
+    height: 60px;
+    flex-shrink: 0;
 }
 
 .header h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
 }
 
 .back-btn {
     background: var(--orange);
     color: white;
-    padding: 8px 18px;
-    border-radius: 12px;
+    padding: 6px 16px;
+    border-radius: 10px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: transform 0.3s ease, background 0.3s ease;
 }
@@ -79,20 +81,19 @@ body {
 /* حاوية الصفحة والجانبية */
 .main-container {
     display: flex;
-    flex: 1;
-    position: relative;
+    flex-direction: row;
     width: 100%;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 60px);
+    position: relative;
 }
 
 /* قائمة جانبية لعرض المراكز مع فلترة المحافظات */
 .sidebar {
     width: 360px;
-    background: rgba(17, 0, 44, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(17, 0, 44, 0.98);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    z-index: 5;
+    padding: 15px;
+    z-index: 10;
     color: white;
     height: 100%;
     display: flex;
@@ -101,38 +102,37 @@ body {
 }
 
 .sidebar h2 {
-    font-size: 18px;
-    margin-bottom: 12px;
+    font-size: 16px;
+    margin-bottom: 10px;
     color: var(--orange);
     border-bottom: 2px solid rgba(255,255,255,0.1);
-    padding-bottom: 8px;
+    padding-bottom: 6px;
 }
 
 /* تصميم القائمة المنسدلة للفلترة */
 .filter-container {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .filter-container label {
     display: block;
-    font-size: 13px;
-    margin-bottom: 5px;
+    font-size: 12px;
+    margin-bottom: 4px;
     color: #ddd;
     font-weight: 600;
 }
 
 .filter-select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    border-radius: 8px;
     color: white;
     font-family: 'Cairo', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
     cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .filter-select option {
@@ -140,47 +140,42 @@ body {
     color: white;
 }
 
-.filter-select:hover, .filter-select:focus {
-    border-color: var(--orange);
-    background: rgba(255, 255, 255, 0.18);
-}
-
 .centers-list-container {
     flex: 1;
     overflow-y: auto;
+    padding-left: 5px;
 }
 
 .center-item {
     background: rgba(255, 255, 255, 0.08);
-    padding: 12px 15px;
-    border-radius: 12px;
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     border: 1px solid transparent;
 }
 
 .center-item:hover {
     background: rgba(246, 81, 29, 0.2);
     border-color: var(--orange);
-    transform: translateX(-5px);
 }
 
 .center-item .badge {
     display: inline-block;
     background: var(--orange);
     color: white;
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    margin-bottom: 5px;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
     font-weight: 700;
 }
 
 .center-item h4 {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     color: #ffffff;
 }
 
@@ -190,33 +185,24 @@ body {
     color: #dddddd;
 }
 
-/* حاوية الخريطة الأساسية */
+/* حاوية الخريطة (تم ضبطها لتملأ المساحة الباقية تماماً) */
 #map {
-    flex-grow: 1;
+    flex: 1;
     height: 100%;
-    background-color: #1a0b36;
+    width: 100%;
     z-index: 1;
 }
 
-/* تأثير نبض الدبابيس (Pulse Effect) */
+/* تأثير نبض الدبابيس */
 @keyframes pulse {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(246, 81, 29, 0.7);
-    }
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 15px rgba(246, 81, 29, 0);
-    }
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(246, 81, 29, 0);
-    }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 81, 29, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(246, 81, 29, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 81, 29, 0); }
 }
 
 .custom-pulse-marker {
     background: var(--orange);
-    border: 3px solid #ffffff;
+    border: 2px solid #ffffff;
     border-radius: 50%;
     animation: pulse 2s infinite;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -225,7 +211,7 @@ body {
 /* تخصيص النافذة المنبثقة Popup */
 .leaflet-popup-content-wrapper {
     font-family: 'Cairo', sans-serif;
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 5px;
     text-align: right;
     direction: rtl;
@@ -233,22 +219,21 @@ body {
 
 .leaflet-popup-content h3 {
     color: var(--purple);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .leaflet-popup-content .popup-gov {
     color: var(--orange);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .leaflet-popup-content p {
     color: #555;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
     margin: 0;
 }
 
@@ -259,10 +244,10 @@ body {
     }
     .sidebar {
         width: 100%;
-        height: 280px;
+        height: 250px;
     }
     #map {
-        height: calc(100vh - 350px);
+        height: calc(100vh - 310px);
     }
 }
 </style>
@@ -320,11 +305,6 @@ body {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // إصلاح مشكلة عدم ظهور الخريطة بالضغط التلقائي على تحديث المساحة
-        setTimeout(function() {
-            map.invalidateSize();
-        }, 300);
-
         // قائمة كافة المراكز والعيادات
         const centers = [
             { gov: "دمشق", name: "عيادة نسائية - الحلَبوني", lat: 33.30393, lng: 36.17379, desc: "الحلبوني - جادة ابن سينا - جانب دار ابن كثير - بناء الفرخ ط1" },
@@ -377,76 +357,4 @@ body {
             { gov: "القنيطرة", name: "عيادة نسائية - خان أرنبة", lat: 33.179961, lng: 35.893282, desc: "عيادة خان ارنبة شارع مدينة السلام مقابل مقبرة خان ارنبة مركز الخان الصحي" },
 
             { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" },
-            { gov: "دير الزور", name: "عيادة نسائية - الميادين", lat: 35.019259, lng: 40.453805, desc: "دير الزور - الميادين - الشارع مقابل المحكمة - جنب جامع الروضة" },
-            { gov: "دير الزور", name: "مركز دعم وتمكين المرأة - دير الزور", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" }
-        ];
-
-        let markersLayer = L.layerGroup().addTo(map);
-        const listContainer = document.getElementById('centers-list');
-        const govSelect = document.getElementById('gov-select');
-
-        // تصميم أيقونة النبض المخصصة
-        const pulseIcon = L.divIcon({
-            className: 'custom-pulse-marker',
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
-        });
-
-        // دالة لعرض وتصفية المراكز حسب المحافظة المختارة
-        function displayCenters(selectedGov) {
-            listContainer.innerHTML = '';
-            markersLayer.clearLayers();
-
-            let filteredCenters = centers;
-            if (selectedGov !== 'all') {
-                filteredCenters = centers.filter(c => c.gov === selectedGov);
-            }
-
-            let bounds = [];
-
-            filteredCenters.forEach((center) => {
-                if (!isNaN(center.lat) && !isNaN(center.lng)) {
-                    const marker = L.marker([center.lat, center.lng], { icon: pulseIcon });
-                    marker.bindPopup(`<div class="popup-gov">${center.gov}</div><h3>${center.name}</h3><p>${center.desc}</p>`);
-                    markersLayer.addLayer(marker);
-
-                    bounds.push([center.lat, center.lng]);
-
-                    // بناء العنصر في القائمة الجانبية
-                    const item = document.createElement('div');
-                    item.className = 'center-item';
-                    item.innerHTML = `<span class="badge">${center.gov}</span><h4>${center.name}</h4><p>${center.desc}</p>`;
-                    
-                    item.addEventListener('click', () => {
-                        map.flyTo([center.lat, center.lng], 13, {
-                            animate: true,
-                            duration: 1.5
-                        });
-                        marker.openPopup();
-                    });
-
-                    listContainer.appendChild(item);
-                }
-            });
-
-            // تحريك الكاميرا لتشمل المراكز الظاهرة فقط
-            if (bounds.length > 0) {
-                if (selectedGov === 'all') {
-                    map.setView([35.151347, 39.056396], 7);
-                } else {
-                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
-                }
-            }
-        }
-
-        // الاستماع لتغيير القائمة المنسدلة
-        govSelect.addEventListener('change', (e) => {
-            displayCenters(e.target.value);
-        });
-
-        // العرض الأولي عند فتح الصفحة
-        displayCenters('all');
-    </script>
-
-</body>
-</html>
+            { gov: "دير الزور", name: "عيادة
