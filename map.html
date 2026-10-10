@@ -87,11 +87,21 @@ body {
     position: relative;
 }
 
-/* قائمة جانبية لعرض المراكز مع فلترة المحافظات */
+/* حاوية الخريطة */
+#map {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    min-height: 300px;
+    z-index: 1;
+}
+
+/* قائمة جانبية لعرض المراكز والفلترة */
 .sidebar {
-    width: 360px;
+    width: 380px;
     background: rgba(17, 0, 44, 0.98);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     padding: 15px;
     z-index: 10;
     color: white;
@@ -99,6 +109,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.4);
 }
 
 .sidebar h2 {
@@ -107,32 +118,45 @@ body {
     color: var(--orange);
     border-bottom: 2px solid rgba(255,255,255,0.1);
     padding-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* تصميم القائمة المنسدلة للفلترة */
-.filter-container {
-    margin-bottom: 12px;
+/* عداد النتائج المتحرك */
+.count-badge {
+    background: rgba(246, 81, 29, 0.2);
+    color: var(--orange);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--orange);
 }
 
-.filter-container label {
+/* عناصر الفلترة والبحث */
+.filter-group {
+    margin-bottom: 10px;
+}
+
+.filter-group label {
     display: block;
-    font-size: 12px;
-    margin-bottom: 4px;
-    color: #ddd;
+    font-size: 11px;
+    margin-bottom: 3px;
+    color: #ccc;
     font-weight: 600;
 }
 
-.filter-select {
+.filter-select, .search-input {
     width: 100%;
-    padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.12);
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     color: white;
     font-family: 'Cairo', sans-serif;
     font-size: 13px;
     outline: none;
-    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .filter-select option {
@@ -140,25 +164,47 @@ body {
     color: white;
 }
 
+.filter-select:focus, .search-input:focus {
+    border-color: var(--orange);
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 0 10px rgba(246, 81, 29, 0.3);
+}
+
+/* قائمة الكروت مع حركات التدفق */
 .centers-list-container {
     flex: 1;
     overflow-y: auto;
     padding-left: 5px;
+    margin-top: 5px;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .center-item {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     padding: 10px 12px;
     border-radius: 10px;
     margin-bottom: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeInUp 0.4s ease forwards;
 }
 
 .center-item:hover {
     background: rgba(246, 81, 29, 0.2);
     border-color: var(--orange);
+    transform: translateX(-4px) scale(1.01);
+}
+
+/* كرت نشط عند النقر عليه */
+.center-item.active {
+    background: rgba(246, 81, 29, 0.35);
+    border-color: var(--orange);
+    box-shadow: 0 0 15px rgba(246, 81, 29, 0.4);
 }
 
 .center-item .badge {
@@ -185,19 +231,10 @@ body {
     color: #dddddd;
 }
 
-/* حاوية الخريطة */
-#map {
-    flex: 1;
-    height: 100%;
-    width: 100%;
-    min-height: 300px;
-    z-index: 1;
-}
-
-/* تأثير نبض الدبابيس */
+/* تأثير نبض ودوران الدبابيس على الخريطة */
 @keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 81, 29, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(246, 81, 29, 0); }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 81, 29, 0.8); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(246, 81, 29, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 81, 29, 0); }
 }
 
@@ -206,7 +243,7 @@ body {
     border: 2px solid #ffffff;
     border-radius: 50%;
     animation: pulse 2s infinite;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 12px rgba(0,0,0,0.6);
 }
 
 /* تخصيص النافذة المنبثقة Popup */
@@ -216,6 +253,7 @@ body {
     padding: 5px;
     text-align: right;
     direction: rtl;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
 .leaflet-popup-content h3 {
@@ -245,10 +283,12 @@ body {
     }
     .sidebar {
         width: 100%;
-        height: 250px;
+        height: 260px;
+        border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     #map {
-        height: calc(100vh - 310px);
+        height: calc(100vh - 320px);
     }
 }
 </style>
@@ -262,12 +302,25 @@ body {
     </div>
 
     <div class="main-container">
-        <!-- قائمة المراكز الجانبية مع فلترة المحافظات -->
-        <div class="sidebar">
-            <h2>مراكز الفروع الطبية</h2>
+        <!-- عنصر الخريطة -->
+        <div id="map"></div>
 
-            <div class="filter-container">
-                <label for="gov-select">اختر المحافظة:</label>
+        <!-- قائمة المراكز الجانبية المتقدمة -->
+        <div class="sidebar">
+            <h2>
+                <span>مراكز الفروع الطبية</span>
+                <span id="count-badge" class="count-badge">0 مركز</span>
+            </h2>
+            
+            <!-- خانة البحث الفوري -->
+            <div class="filter-group">
+                <label for="search-input"><i class="fa-solid fa-magnifying-glass"></i> بحث سريع عن مركز أو منطقة:</label>
+                <input type="text" id="search-input" class="search-input" placeholder="اكتب للبحث الفوري...">
+            </div>
+
+            <!-- قائمة فلترة المحافظات -->
+            <div class="filter-group">
+                <label for="gov-select"><i class="fa-solid fa-filter"></i> تصفية حسب المحافظة:</label>
                 <select id="gov-select" class="filter-select">
                     <option value="all">🌐 كافة المحافظات (عرض الكل)</option>
                     <option value="دمشق">دمشق</option>
@@ -286,9 +339,6 @@ body {
 
             <div class="centers-list-container" id="centers-list"></div>
         </div>
-
-        <!-- عنصر الخريطة -->
-        <div id="map"></div>
     </div>
 
     <!-- استدعاء مكتبة Leaflet JavaScript -->
@@ -357,81 +407,99 @@ body {
 
             { gov: "القنيطرة", name: "عيادة نسائية - خان أرنبة", lat: 33.179961, lng: 35.893282, desc: "عيادة خان ارنبة شارع مدينة السلام مقابل مقبرة خان ارنبة مركز الخان الصحي" },
 
-            { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" }
-            // ⬅️ أضف هنا بقية المراكز التي كانت بعد "بعاجين" (ضع فاصلة بعد السطر السابق ثم المركز الجديد)
+            { gov: "دير الزور", name: "عيادة نسائية - بعاجين", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" },
+            { gov: "دير الزور", name: "عيادة نسائية - الميادين", lat: 35.019259, lng: 40.453805, desc: "دير الزور - الميادين - الشارع مقابل المحكمة - جنب جامع الروضة" },
+            { gov: "دير الزور", name: "مركز دعم وتمكين المرأة - دير الزور", lat: 35.337830, lng: 40.132141, desc: "دير الزور - بعاجين - مقابل حديقة النصارى - جانب مدرسة الاعداد الحزبي" }
         ];
 
-        // طبقة تجمع الدبابيس لتسهيل مسحها عند الفلترة
         const markersLayer = L.layerGroup().addTo(map);
-        let markerRefs = [];
+        const listContainer = document.getElementById('centers-list');
+        const govSelect = document.getElementById('gov-select');
+        const searchInput = document.getElementById('search-input');
+        const countBadge = document.getElementById('count-badge');
 
-        // أيقونة نابضة
         const pulseIcon = L.divIcon({
             className: 'custom-pulse-marker',
-            iconSize: [18, 18],
-            iconAnchor: [9, 9],
+            iconSize: [16, 16],
+            iconAnchor: [8, 8],
             popupAnchor: [0, -10]
         });
 
-        // تحديد نوع المركز لشارة القائمة
         function getBadge(name) {
-            if (name.includes("دعم وتمكين")) return "مركز دعم وتمكين المرأة";
-            if (name.includes("عيادة")) return "عيادة";
+            if (name.includes("دعم وتمكين")) return "دعم وتمكين المرأة";
+            if (name.includes("عيادة")) return "عيادة طبية";
             if (name.includes("مشفى")) return "مشفى";
-            if (name.includes("مستودع")) return "مستودع";
-            return "مركز";
+            return "مركز طبي";
         }
 
-        // رسم الدبابيس والقائمة حسب المحافظة
-        function render(gov) {
+        // الدالة الشاملة للفلترة والعرض والتفاعل
+        function updateMapAndList() {
             markersLayer.clearLayers();
-            markerRefs = [];
-            const listEl = document.getElementById('centers-list');
-            listEl.innerHTML = '';
+            listContainer.innerHTML = '';
 
-            const filtered = gov === 'all' ? centers : centers.filter(c => c.gov === gov);
-            const bounds = [];
+            const selectedGov = govSelect.value;
+            const query = searchInput.value.trim().toLowerCase();
 
-            filtered.forEach(c => {
-                const marker = L.marker([c.lat, c.lng], { icon: pulseIcon })
-                    .bindPopup(
-                        '<h3>' + c.name + '</h3>' +
-                        '<div class="popup-gov">' + c.gov + '</div>' +
-                        '<p>' + c.desc + '</p>'
-                    )
-                    .addTo(markersLayer);
-                markerRefs.push(marker);
-                bounds.push([c.lat, c.lng]);
-
-                const item = document.createElement('div');
-                item.className = 'center-item';
-                item.innerHTML =
-                    '<span class="badge">' + getBadge(c.name) + '</span>' +
-                    '<h4>' + c.name + '</h4>' +
-                    '<p>' + c.gov + ' - ' + c.desc + '</p>';
-                item.addEventListener('click', () => {
-                    map.flyTo([c.lat, c.lng], 15, { duration: 1 });
-                    marker.openPopup();
-                });
-                listEl.appendChild(item);
+            // تطبيق الفلترة المزدوجة (حسب المحافظة وحسب النص المكتوب في البحث)
+            const filtered = centers.filter(c => {
+                const matchGov = (selectedGov === 'all' || c.gov === selectedGov);
+                const matchSearch = (c.name.toLowerCase().includes(query) || c.desc.toLowerCase().includes(query) || c.gov.toLowerCase().includes(query));
+                return matchGov && matchSearch;
             });
 
+            countBadge.innerText = filtered.length + ' مركز';
+            const bounds = [];
+
+            filtered.forEach((c, index) => {
+                // رسم الدبوس على الخريطة
+                const marker = L.marker([c.lat, c.lng], { icon: pulseIcon })
+                    .bindPopup(`<h3>${c.name}</h3><div class="popup-gov">${c.gov}</div><p>${c.desc}</p>`)
+                    .addTo(markersLayer);
+
+                bounds.push([c.lat, c.lng]);
+
+                // بناء عنصر القائمة الجانبية بتأثير الظهور التدريجي
+                const item = document.createElement('div');
+                item.className = 'center-item';
+                item.style.animationDelay = (index * 0.04) + 's';
+                item.innerHTML = `
+                    <span class="badge">${getBadge(c.name)}</span>
+                    <h4>${c.name}</h4>
+                    <p><i class="fa-solid fa-location-dot"></i> ${c.gov} - ${c.desc}</p>
+                `;
+
+                // التفاعل عند النقر: إضاءة الكرت، تحليق الكاميرا للخريطة، وفتح الـ Popup
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.center-item').forEach(el => el.classList.remove('active'));
+                    item.classList.add('active');
+
+                    map.flyTo([c.lat, c.lng], 14, {
+                        animate: true,
+                        duration: 1.2
+                    });
+                    marker.openPopup();
+                });
+
+                listContainer.appendChild(item);
+            });
+
+            // تحريك الكاميرا بذكاء لتشمل النتائج الظاهرة
             if (bounds.length === 1) {
                 map.setView(bounds[0], 14);
             } else if (bounds.length > 1) {
-                map.fitBounds(bounds, { padding: [40, 40] });
+                map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+            } else if (bounds.length === 0) {
+                map.setView([35.151347, 39.056396], 7);
             }
         }
 
-        document.getElementById('gov-select').addEventListener('change', function () {
-            render(this.value);
-        });
+        // الأحداث التفاعلية
+        govSelect.addEventListener('change', updateMapAndList);
+        searchInput.addEventListener('input', updateMapAndList);
 
-        // عرض كل المراكز عند التحميل
-        render('all');
-
-        // ضمان حساب حجم الخريطة بعد اكتمال تحميل الصفحة
-        window.addEventListener('load', () => map.invalidateSize());
+        // التشغيل الأولي وتحديث المقاسات
+        updateMapAndList();
+        setTimeout(() => map.invalidateSize(), 250);
     </script>
 
 </body>
