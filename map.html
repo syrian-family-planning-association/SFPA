@@ -177,44 +177,13 @@ body {
 .locate-btn.loading i { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* القائمة */
-.centers-list-container { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding-left: 5px; }
-.centers-list-container::-webkit-scrollbar { width: 6px; }
-.centers-list-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 6px; }
-
-.center-item {
-    background: rgba(255,255,255,0.08);
-    padding: 10px 12px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-    animation: slideIn .4s ease both;
-}
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(18px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-.center-item:hover, .center-item.active {
-    background: rgba(246,81,29,0.2);
-    border-color: var(--orange);
-    transform: translateX(-3px);
-}
-.center-item .badge {
-    display: inline-block; color: white; font-size: 9px;
-    padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; font-weight: 700;
-}
-.badge.t-clinic  { background: var(--orange); }
-.badge.t-support { background: var(--support); }
-.badge.t-other   { background: var(--other); }
-.center-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 2px; color: #fff; }
-.center-item p { font-size: 11px; opacity: 0.85; color: #ddd; }
-.center-item .dist { color: #ffd0c2; font-weight: 700; margin-top: 3px; }
-
+/* رسالة عدم وجود نتائج */
 .empty-msg {
+    display: none;
     text-align: center; color: #ccc; font-size: 13px;
-    padding: 30px 10px; opacity: .85;
+    padding: 14px 10px; opacity: .9;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
 }
 
 /* الخريطة */
@@ -281,7 +250,6 @@ body {
 .pin.t-clinic  { background: var(--orange);  --pulse: rgba(246,81,29,0.7); }
 .pin.t-support { background: var(--support); --pulse: rgba(168,85,247,0.7); }
 .pin.t-other   { background: var(--other);   --pulse: rgba(20,184,166,0.7); }
-.pin.hl { animation: bounce .6s ease infinite; border-width: 3px; }
 
 @keyframes pulse {
     0%   { box-shadow: 0 0 0 0 var(--pulse); }
@@ -291,10 +259,6 @@ body {
 @keyframes dropIn {
     from { opacity: 0; transform: translateY(-25px) scale(.4); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes bounce {
-    0%,100% { transform: translateY(0) scale(1.35); }
-    50%     { transform: translateY(-9px) scale(1.35); }
 }
 
 /* دبوس موقعي */
@@ -356,7 +320,7 @@ body {
 }
 .reset-btn:hover { background: #f4f4f4; color: var(--orange); }
 
-/* تخطيط الشاشات الصغيرة: الخريطة بالأعلى والقائمة أسفلها مع تمرير مستقل */
+/* تخطيط الشاشات الصغيرة: الخريطة بالأعلى والفلاتر أسفلها */
 @media (max-width: 768px) {
     .header { height: 54px; padding: 6px 10px; gap: 8px; }
     .header h1 { font-size: 12px; line-height: 1.45; max-width: calc(100% - 82px); text-align: right; }
@@ -378,7 +342,6 @@ body {
     .count-label { font-size: 11px; }
     .count-label b { font-size: 13px; }
     .locate-btn { padding: 5px 8px; font-size: 10px; }
-    .centers-list-container { display: none; }
     .map-wrap { width: 100%; height: auto; min-height: 0; flex: 1 1 auto; }
     #map { min-height: 0; }
     .stats-bar { top: 7px; left: auto; right: 7px; transform: none; width: 122px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
@@ -451,7 +414,7 @@ body {
                 <button class="locate-btn" id="locate-btn"><i class="fa-solid fa-location-crosshairs"></i> أقرب مركز لي</button>
             </div>
 
-            <div class="centers-list-container" id="centers-list"></div>
+            <div class="empty-msg" id="empty-msg"><i class="fa-regular fa-face-frown"></i> لا توجد نتائج مطابقة</div>
         </div>
 
         <div class="map-wrap">
@@ -601,7 +564,6 @@ body {
 
         const state = { gov: 'all', type: 'all', q: '', user: null };
         const markers = {};      // id -> marker
-        const listItems = {};    // id -> عنصر القائمة
         let userMarker = null;
 
         function makeIcon(type) {
@@ -632,24 +594,8 @@ body {
         centers.forEach(c => {
             const m = L.marker([c.lat, c.lng], { icon: makeIcon(c.type), title: c.name });
             m.bindPopup(function () { return popupHtml(c); }, { maxWidth: 270 });
-            m.on('popupopen', () => setActive(c.id));
-            m.on('popupclose', () => setActive(null));
-            m.on('mouseover', () => { const it = listItems[c.id]; if (it) it.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
             markers[c.id] = m;
         });
-
-        function setActive(id) {
-            Object.keys(listItems).forEach(k => listItems[k].classList.toggle('active', Number(k) === id));
-            if (id !== null && listItems[id]) listItems[id].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }
-
-        function highlightPin(id, on) {
-            const m = markers[id];
-            if (m && m._icon) {
-                const pin = m._icon.querySelector('.pin');
-                if (pin) pin.classList.toggle('hl', on);
-            }
-        }
 
         function goTo(c) {
             const m = markers[c.id];
@@ -674,39 +620,24 @@ body {
 
         function render(fit) {
             const list = getFiltered();
-            const listEl = document.getElementById('centers-list');
-            listEl.innerHTML = '';
+            const emptyEl = document.getElementById('empty-msg');
             cluster.clearLayers();
-            Object.keys(listItems).forEach(k => delete listItems[k]);
 
             document.getElementById('count').textContent = list.length;
             updateStats(list);
 
             if (!list.length) {
-                listEl.innerHTML = '<div class="empty-msg"><i class="fa-regular fa-face-frown"></i><br>لا توجد نتائج مطابقة</div>';
+                emptyEl.style.display = 'block';
                 return;
             }
+            emptyEl.style.display = 'none';
 
             const layers = [];
             const bounds = [];
 
-            list.forEach((c, i) => {
+            list.forEach(c => {
                 layers.push(markers[c.id]);
                 bounds.push([c.lat, c.lng]);
-
-                const item = document.createElement('div');
-                item.className = 'center-item';
-                item.style.animationDelay = Math.min(i * 30, 600) + 'ms';
-                item.innerHTML =
-                    '<span class="badge t-' + c.type + '">' + TYPE_LABELS[c.type] + '</span>' +
-                    '<h4>' + esc(c.name) + '</h4>' +
-                    '<p>' + esc(c.gov) + ' - ' + esc(c.desc) + '</p>' +
-                    (c.d !== undefined ? '<p class="dist"><i class="fa-solid fa-location-dot"></i> ' + c.d.toFixed(1) + ' كم</p>' : '');
-                item.addEventListener('click', () => goTo(c));
-                item.addEventListener('mouseenter', () => highlightPin(c.id, true));
-                item.addEventListener('mouseleave', () => highlightPin(c.id, false));
-                listEl.appendChild(item);
-                listItems[c.id] = item;
             });
 
             cluster.addLayers(layers);
