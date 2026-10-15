@@ -237,9 +237,35 @@ body {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* الدبابيس: الحركة على عنصر داخلي حتى لا نكسر تموضع Leaflet */
-.pin-wrap { background: none; border: none; }
+/* الدبابيس وتسمياتها: الاسم مربوط بأيقونة الدبوس نفسها ليبقى فوق منتصفها تماماً */
+.pin-wrap { background: none; border: none; overflow: visible; }
+.pin-label-text {
+    position: absolute;
+    left: 50%; bottom: 27px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: max-content; max-width: 240px;
+    padding: 3px 9px;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 8px;
+    background: rgba(37, 0, 92, 0.92);
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px; font-weight: 700;
+    line-height: 1.5; text-align: center;
+    white-space: nowrap; direction: rtl;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+    pointer-events: none;
+}
+.pin-label-text::after {
+    content: '';
+    position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(37, 0, 92, 0.92);
+}
 .pin {
+    position: absolute; top: 2px; left: 2px;
     display: block; width: 18px; height: 18px;
     border-radius: 50%;
     border: 2px solid #fff;
@@ -260,25 +286,6 @@ body {
     from { opacity: 0; transform: translateY(-25px) scale(.4); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
-/* اسم المركز فوق الدبوس (يظهر عند التقريب فقط لتجنب التزاحم) */
-.leaflet-tooltip.pin-label {
-    visibility: hidden;
-    pointer-events: none;
-    background: rgba(37, 0, 92, 0.92);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 8px;
-    padding: 3px 9px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-    direction: rtl;
-}
-.leaflet-tooltip-top.pin-label::before { border-top-color: rgba(37, 0, 92, 0.92); }
-.show-labels .leaflet-tooltip.pin-label { visibility: visible; }
 
 /* دبوس موقعي */
 .me-dot {
@@ -585,10 +592,10 @@ body {
         const markers = {};      // id -> marker
         let userMarker = null;
 
-        function makeIcon(type) {
+        function makeIcon(type, name) {
             return L.divIcon({
                 className: 'pin-wrap',
-                html: '<span class="pin t-' + type + '"></span>',
+                html: '<span class="pin-label-text">' + esc(name) + '</span><span class="pin t-' + type + '"></span>',
                 iconSize: [22, 22],
                 iconAnchor: [11, 11],
                 popupAnchor: [0, -12]
@@ -611,19 +618,10 @@ body {
 
         // إنشاء الدبابيس مرة واحدة
         centers.forEach(c => {
-            const m = L.marker([c.lat, c.lng], { icon: makeIcon(c.type), title: c.name });
+            const m = L.marker([c.lat, c.lng], { icon: makeIcon(c.type, c.name), title: c.name });
             m.bindPopup(function () { return popupHtml(c); }, { maxWidth: 270 });
-            m.bindTooltip(c.name, { permanent: true, direction: 'top', offset: [0, -12], className: 'pin-label' });
             markers[c.id] = m;
         });
-
-        // إظهار الأسماء فقط عند التقريب (غيّر الرقم 10 لتظهر أبكر أو أبعد)
-        const LABEL_MIN_ZOOM = 10;
-        function updateLabels() {
-            map.getContainer().classList.toggle('show-labels', map.getZoom() >= LABEL_MIN_ZOOM);
-        }
-        map.on('zoomend', updateLabels);
-        updateLabels();
 
         function goTo(c) {
             const m = markers[c.id];
