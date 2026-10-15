@@ -263,7 +263,8 @@ body {
 
 /* اسم المركز فوق الدبوس (يظهر عند التقريب فقط لتجنب التزاحم) */
 .leaflet-tooltip.pin-label {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
     background: rgba(37, 0, 92, 0.92);
     color: #fff;
     border: 1px solid rgba(255,255,255,0.35);
@@ -277,7 +278,7 @@ body {
     direction: rtl;
 }
 .leaflet-tooltip-top.pin-label::before { border-top-color: rgba(37, 0, 92, 0.92); }
-.show-labels .leaflet-tooltip.pin-label { display: block; }
+.show-labels .leaflet-tooltip.pin-label { visibility: visible; }
 
 /* دبوس موقعي */
 .me-dot {
