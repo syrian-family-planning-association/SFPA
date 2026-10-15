@@ -295,7 +295,7 @@ function selectGov(gov, btnElement) {
     const filteredCenters = db.filter(item => item.type === currentType && item.gov === gov);
 
     if (filteredCenters.length === 0) {
-        resultsContainer.innerHTML = `<div class="placeholder-text"><i class="fa-solid fa-circle-info"></i>ما لقينا نتائج مطابقة لهالاختيار.</div>`;
+        resultsContainer.innerHTML = `<div class="placeholder-text"><i class="fa-solid fa-circle-info"></i>لا يوجد نتائج مطابقة لهذا الاختيار.</div>`;
         return;
     }
 
