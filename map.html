@@ -261,6 +261,24 @@ body {
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* اسم المركز فوق الدبوس (يظهر عند التقريب فقط لتجنب التزاحم) */
+.leaflet-tooltip.pin-label {
+    display: none;
+    background: rgba(37, 0, 92, 0.92);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 8px;
+    padding: 3px 9px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+    direction: rtl;
+}
+.leaflet-tooltip-top.pin-label::before { border-top-color: rgba(37, 0, 92, 0.92); }
+.show-labels .leaflet-tooltip.pin-label { display: block; }
+
 /* دبوس موقعي */
 .me-dot {
     display: block; width: 16px; height: 16px; border-radius: 50%;
@@ -594,8 +612,17 @@ body {
         centers.forEach(c => {
             const m = L.marker([c.lat, c.lng], { icon: makeIcon(c.type), title: c.name });
             m.bindPopup(function () { return popupHtml(c); }, { maxWidth: 270 });
+            m.bindTooltip(c.name, { permanent: true, direction: 'top', offset: [0, -12], className: 'pin-label' });
             markers[c.id] = m;
         });
+
+        // إظهار الأسماء فقط عند التقريب (غيّر الرقم 10 لتظهر أبكر أو أبعد)
+        const LABEL_MIN_ZOOM = 10;
+        function updateLabels() {
+            map.getContainer().classList.toggle('show-labels', map.getZoom() >= LABEL_MIN_ZOOM);
+        }
+        map.on('zoomend', updateLabels);
+        updateLabels();
 
         function goTo(c) {
             const m = markers[c.id];
